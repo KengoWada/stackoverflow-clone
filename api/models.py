@@ -43,11 +43,27 @@ class Question(db.Model):
     title = db.Column(db.String(100))
     body = db.Column(db.String(256))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    created_at = db.Column(db.DateTime)
-    updated_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.now, onupdate=datetime.now)
 
     def __str__(self):
         return self.title
 
     def __repr__(self):
         return f'<Question {self.title}>'
+
+    def update(self, data):
+        for field in ['title', 'body']:
+            if field in data:
+                setattr(self, field, data[field])
+
+    def to_dict(self):
+        data = {
+            'id': self.id,
+            'title': self.title,
+            'body': self.body,
+            'created_at': self.created_at,
+            'author': self.author.username
+        }
+        return data

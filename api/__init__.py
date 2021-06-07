@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 
-from config import Config  # nopep8
+from config import Config
 
 
 db = SQLAlchemy()
