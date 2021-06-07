@@ -17,7 +17,7 @@ def create_question():
     db.session.add(question)
     db.session.commit()
 
-    response = {'message': 'Done'}
+    response = {'message': 'Done', 'question': question.to_dict()}
     return jsonify(response), 201
 
 
@@ -58,7 +58,7 @@ def update_question(question_id):
     question.update(data)
     db.session.commit()
 
-    response = {'message': 'Done'}
+    response = {'message': 'Done', 'question': question.to_dict()}
     return jsonify(response), 200
 
 

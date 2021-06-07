@@ -16,3 +16,9 @@ class Config(object):
     JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(minutes=30)
     JWT_REFRESH_TOKEN_EXPIRES = datetime.timedelta(hours=24)
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
+
+
+class TestConfig(Config):
+    TESTING = True
+
+    SQLALCHEMY_DATABASE_URI = os.getenv('TEST_DATABASE_URL')

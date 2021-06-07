@@ -29,7 +29,7 @@ def register_user():
             'message': f'{error_msg[0].capitalize()}: {error_msg[1]} is already taken.'}
         return jsonify(response), 400
 
-    response = {'message': 'Done'}
+    response = {'message': 'Done', 'user': user.to_dict()}
     return jsonify(response), 201
 
 

@@ -15,10 +15,10 @@ class User(db.Model):
     updated_at = db.Column(
         db.DateTime, default=datetime.now, onupdate=datetime.now)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return self.username
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return f'<User {self.username}>'
 
     def set_password(self, password):
@@ -47,10 +47,10 @@ class Question(db.Model):
     updated_at = db.Column(
         db.DateTime, default=datetime.now, onupdate=datetime.now)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return self.title
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return f'<Question {self.title}>'
 
     def update(self, data):
