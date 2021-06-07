@@ -1,10 +1,27 @@
-from config import Config
 from flask import Flask
-from flask_migrate import Migrate, migrate
+from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+
+
+from config import Config  # nopep8
+
 
 db = SQLAlchemy()
 migrate = Migrate()
+jwt = JWTManager()
+
+
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    return user.id
+
+
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    from .models import User
+    identity = jwt_data["sub"]
+    return User.query.filter_by(id=identity).one_or_none()
 
 
 def create_app(config_class=Config):
@@ -12,8 +29,9 @@ def create_app(config_class=Config):
 
     app.config.from_object(config_class)
 
-    db.init_app(app)
-    migrate.init_app(app, db)
+    db.init_app(app=app)
+    migrate.init_app(app=app, db=db)
+    jwt.init_app(app=app)
 
     from .auth.routes import auth_bp
     app.register_blueprint(auth_bp)
@@ -23,4 +41,5 @@ def create_app(config_class=Config):
 
     return app
 
-from . import models
+
+from . import models  # nopep8
