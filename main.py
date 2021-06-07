@@ -1,12 +1,6 @@
-from flask import Flask, jsonify
-
-app = Flask(__name__)
-
-
-@app.route('')
-def index():
-    return jsonify({'message': Done}), 200
-
+from flask import app
+from api import create_app
 
 if __name__ == "__main__":
+    app = create_app()
     app.run()
