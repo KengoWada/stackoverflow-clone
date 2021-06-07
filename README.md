@@ -10,6 +10,16 @@ A simple Stack Overflow clone with Flask.
 
 - Install dependecies `pip install -r requirements.txt`
 
+- Create a **.env** file and add values from **.env_example**
+
+- Source the environment variables `source .env`
+
+- Run migrations `flask db upgrade`
+
+- Start server locally `flask run` or `python main.py`
+
+- Run tests `pytest --cov`
+
 ## Tools
 
 - Flask
