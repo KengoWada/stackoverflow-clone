@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_jwt_extended import JWTManager
+from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
@@ -8,6 +9,7 @@ from config import Config
 
 
 db = SQLAlchemy()
+mail = Mail()
 migrate = Migrate()
 jwt = JWTManager()
 
@@ -30,6 +32,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
 
     db.init_app(app=app)
+    mail.init_app(app=app)
     migrate.init_app(app=app, db=db)
     jwt.init_app(app=app)
 
