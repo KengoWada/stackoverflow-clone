@@ -34,6 +34,12 @@ class BaseTestCase(unittest.TestCase):
         self.other_question = {
             'title': 'Other question', 'body': 'Other question body'}
 
+        # Dummy answers
+        self.answer = {'body': 'A cool answer'}
+        self.update_answer = {'body': 'An updated cool answer'}
+        self.invalid_answer = {}
+        self.other_answer = {'body': 'Other cool answer'}
+
     def get_user_token(self, user_data):
         """
         Create dummy user and return JWT
@@ -68,6 +74,20 @@ class BaseTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
 
         return data['question']['id']
+
+    def create_answer(self, answer_data, question_id, token):
+        """
+        Create an answer for a question and user whose token is provided
+        """
+        headers = {'Authorization': f'Bearer {token}',
+                   'content-type': 'application/json'}
+        data = json.dumps(answer_data)
+        url = f'/questions/{question_id}/answers'
+
+        response = self.test_client.post(url, headers=headers, data=data)
+        data = json.loads(response.data.decode())
+
+        return data['answer']['id']
 
     def tearDown(self):
         db.session.remove()
