@@ -26,6 +26,7 @@ class Config(object):
 
 
 class TestConfig(Config):
+    DEBUG = True
     TESTING = True
 
     SQLALCHEMY_DATABASE_URI = os.getenv('TEST_DATABASE_URL')
