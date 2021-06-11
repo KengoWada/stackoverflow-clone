@@ -33,6 +33,12 @@ class QuestionGetUpdateDelete(MethodView):
         return question_crud.delete(question_id=question_id)
 
 
+@question_bp.route('/mine')
+@jwt_required()
+def get_my_questions():
+    return question_crud.get_mine()
+
+
 class AnswerCreateList(MethodView):
 
     @jwt_required()
@@ -59,16 +65,6 @@ class AnswerGetUpdateDelete(MethodView):
     @jwt_required()
     def delete(self, question_id, answer_id):
         return answer_crud.delete(question_id=question_id, answer_id=answer_id)
-
-
-@question_bp.route('/mine')
-@jwt_required()
-def get_my_questions():
-    questions = current_user.questions.order_by(Question.created_at.desc())
-    questions = [question.to_dict() for question in questions]
-
-    response = {'message': 'Done', 'questions': questions}
-    return jsonify(response), 200
 
 
 question_bp.add_url_rule(

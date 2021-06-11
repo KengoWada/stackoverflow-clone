@@ -24,6 +24,14 @@ def get_all():
     return jsonify(response), 200
 
 
+def get_mine():
+    questions = current_user.questions.order_by(Question.created_at.desc())
+    questions = [question.to_dict() for question in questions]
+
+    response = {'message': 'Done', 'questions': questions}
+    return jsonify(response), 200
+
+
 def get_with_id(question_id):
     question = Question.query.get(question_id)
     if not question:
