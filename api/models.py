@@ -91,13 +91,6 @@ class Question(db.Model):
             if field in data:
                 setattr(self, field, data[field])
 
-    def get_answer(self, answer_id):
-        for answer in self.answers:
-            if answer.id == int(answer_id):
-                return answer
-
-        return None
-
     def to_dict(self):
         data = {
             'id': self.id,

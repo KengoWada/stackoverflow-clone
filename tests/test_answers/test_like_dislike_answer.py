@@ -43,6 +43,10 @@ class LikeDislikeAnswerTestCase(BaseTestCase):
 
         self.assertEqual(response.status_code, 200)
 
+        response = self.test_client.patch(url, headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
     def test_liking_answer_unauthorized(self):
         """
         Test liking an answer when not authenticated
