@@ -7,3 +7,4 @@ omit =
     */venv/*
     */home/travis/virtualenv/*
     models.py
+    tests/*
