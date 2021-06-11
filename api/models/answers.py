@@ -22,7 +22,7 @@ class Answer(db.Model):
             'id': self.id,
             'body': self.body,
             'author': self.author.username,
-            'likes': self.likes.count()
+            'likes': self.liked_by.count()
         }
 
         if not simple:

@@ -21,7 +21,7 @@ class User(db.Model):
     questions = db.relationship('Question', backref='author', lazy='dynamic')
     answers = db.relationship('Answer', backref='author', lazy='dynamic')
     liked_answers = db.relationship(
-        'Answer', secondary=answer_likes, backref='liked_by', lazy='dynamic')
+        'Answer', secondary=answer_likes, backref=db.backref('liked_by', lazy='dynamic'), lazy='dynamic')
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(
         db.DateTime, default=datetime.now, onupdate=datetime.now)
