@@ -15,7 +15,6 @@ class ResgistrationTestCase(BaseTestCase):
         """
         response = self.test_client.post(
             self.url, content_type='application/json', data=json.dumps(self.user))
-        print(json.loads(response.data.decode()))
         self.assertEqual(response.status_code, 201)
 
     def test_registering_twice(self):
