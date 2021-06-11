@@ -1,8 +1,7 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint
 from flask.views import MethodView
-from flask_jwt_extended import current_user, jwt_required
+from flask_jwt_extended import jwt_required
 
-from api.models import Answer, Question
 
 from . import answer_crud, question_crud
 
