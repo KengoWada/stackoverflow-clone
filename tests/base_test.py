@@ -19,8 +19,10 @@ class BaseTestCase(unittest.TestCase):
         # Dummy users
         self.user = {'username': 'SomePerson',
                      'email': 'some@email.com', 'password': 'complex_password'}
-        self.invalid_user = {'username': 'SomePerson',
-                             'email': 'some@email.com', 'password': 'co_password'}
+        self.invalid_user = {
+            'username': 'SomePerson', 'password': 'password'}
+        self.invalid_register_user = {
+            'username': 'SomePerson', 'email': 'some@'}
         self.other_user = {'username': 'OtherUser',
                            'email': 'other@email.com', 'password': 'complex_password'}
 
@@ -30,7 +32,7 @@ class BaseTestCase(unittest.TestCase):
         self.invalid_question = {'title': 'Invalid question'}
         self.update_question = {
             'title': 'New sample question', 'body': 'New sample question body'}
-        self.invalid_update_question = {'body': 'New sample question body'}
+        self.invalid_update_question = {}
         self.other_question = {
             'title': 'Other question', 'body': 'Other question body'}
 

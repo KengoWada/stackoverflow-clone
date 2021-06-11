@@ -3,9 +3,16 @@ from api.models import Question
 from flask import jsonify, request
 from flask_jwt_extended import current_user
 
+from .validators import validate_question
+
 
 def create():
     data = request.get_json()
+
+    result = validate_question(data)
+    if not result['is_valid']:
+        response = {'message': 'Invalid values', 'error': result['errors']}
+        return jsonify(response), 400
 
     question = Question(title=data['title'],
                         body=data['body'], user_id=current_user.id)
@@ -43,6 +50,13 @@ def get_with_id(question_id):
 
 
 def update(question_id):
+    data = request.get_json()
+
+    result = validate_question(data)
+    if not result['is_valid']:
+        response = {'message': 'Invalid values', 'errors': result['errors']}
+        return jsonify(response), 400
+
     question = Question.query.get(question_id)
     if not question:
         response = {'message': 'Invalid question ID'}
@@ -52,7 +66,6 @@ def update(question_id):
         response = {'message': 'Invalid request'}
         return jsonify(response), 403
 
-    data = request.get_json()
     question.update(data)
     db.session.commit()
 

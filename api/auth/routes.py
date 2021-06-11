@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 from api import db
 from api.models import User
+from .validators import validate_register_data
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -11,6 +12,11 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 @auth_bp.route('/register', methods=['POST'])
 def register_user():
     data = request.get_json()
+
+    result = validate_register_data(data)
+    if not result['is_valid']:
+        response = {'message': 'Invalid request', 'error': result['errors']}
+        return jsonify(response), 400
 
     user = User(username=data['username'], email=data['email'])
     user.set_password(password=data['password'])

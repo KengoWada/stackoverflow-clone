@@ -43,6 +43,20 @@ class AddAnswerTestCase(BaseTestCase):
 
         self.assertEqual(response.status_code, 400)
 
+    def test_add_answer_invalid_request(self):
+        """
+        Test adding an answer to an invalid request body
+        """
+        user_token, question_id = self.add_question()
+        headers = {'Authorization': f'Bearer {user_token}',
+                   'content-type': 'application/json'}
+        data = json.dumps(self.invalid_answer)
+        url = f'/questions/{question_id}/answers'
+
+        response = self.test_client.post(url, headers=headers, data=data)
+
+        self.assertEqual(response.status_code, 400)
+
     def test_add_answer_unauthenticated(self):
         """
         Test adding an answer when not authenticated

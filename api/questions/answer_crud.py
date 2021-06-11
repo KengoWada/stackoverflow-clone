@@ -3,6 +3,8 @@ from api.models import Answer, Question
 from flask import jsonify, request
 from flask_jwt_extended import current_user
 
+from .validators import validate_answer
+
 
 def get_answer_object(question_id, answer_id):
     answer = Answer.query \
@@ -13,12 +15,17 @@ def get_answer_object(question_id, answer_id):
 
 
 def create(question_id):
+    data = request.get_json()
+
+    result = validate_answer(data)
+    if not result['is_valid']:
+        response = {'message': 'Invalid values', 'errors': result['errors']}
+        return jsonify(response), 400
+
     question = Question.query.get(question_id)
     if not question:
         response = {'message': 'Invalid question ID'}
         return jsonify(response), 400
-
-    data = request.get_json()
 
     answer = Answer(body=data['body'],
                     user_id=current_user.id, question_id=question.id)
@@ -69,6 +76,11 @@ def like_dislike(question_id, answer_id):
 
 def update(question_id, answer_id):
     data = request.get_json()
+
+    result = validate_answer(data)
+    if not result['is_valid']:
+        response = {'message': 'Invalid values', 'errors': result['errors']}
+        return jsonify(response), 400
 
     answer = get_answer_object(question_id, answer_id)
     if not answer:

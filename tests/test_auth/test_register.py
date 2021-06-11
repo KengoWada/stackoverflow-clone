@@ -28,3 +28,14 @@ class ResgistrationTestCase(BaseTestCase):
         response = self.test_client.post(
             self.url, content_type='application/json', data=json.dumps(self.user))
         self.assertEqual(response.status_code, 400)
+
+    def test_registering_invalid_request(self):
+        """
+        Test registering with an invalid request body
+        """
+        headers = {'content-type': 'application/json'}
+        data = json.dumps(self.invalid_register_user)
+
+        response = self.test_client.post(self.url, headers=headers, data=data)
+
+        self.assertEqual(response.status_code, 400)

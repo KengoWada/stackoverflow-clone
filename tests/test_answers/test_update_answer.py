@@ -68,21 +68,20 @@ class UpdateAnswerTestCase(BaseTestCase):
 
         self.assertEqual(response.status_code, 400)
 
-    # TODO: Implement request validation
-    # def test_update_answer_invalid_body(self):
-    #     """
-    #     Test updating an answer with invalid body
-    #     """
-    #     _, other_user_token, question_id, answer_id = self.add_answer()
+    def test_update_answer_invalid_body(self):
+        """
+        Test updating an answer with invalid body
+        """
+        _, other_user_token, question_id, answer_id = self.add_answer()
 
-    #     headers = {'Authorization': f'Bearer {other_user_token}',
-    #                'content-type': 'application/json'}
-    #     data = json.dumps(self.update_answer)
-    #     url = f'/questions/{question_id}/answers/{answer_id}'
+        headers = {'Authorization': f'Bearer {other_user_token}',
+                   'content-type': 'application/json'}
+        data = json.dumps(self.invalid_answer)
+        url = f'/questions/{question_id}/answers/{answer_id}'
 
-    #     response = self.test_client.put(url, headers=headers, data=data)
+        response = self.test_client.put(url, headers=headers, data=data)
 
-    #     self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 400)
 
     def test_update_answer_unauthenticated(self):
         """

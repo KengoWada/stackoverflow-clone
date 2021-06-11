@@ -44,6 +44,20 @@ class UpdateQuestionTestCase(BaseTestCase):
 
         self.assertEqual(response.status_code, 400)
 
+    def test_update_question_invalid_request(self):
+        """
+        Test updating a question with invalid request body
+        """
+        user_token, question_id = self.add_question()
+        headers = {'Authorization': f'Bearer {user_token}',
+                   'content-type': 'application/json'}
+        data = json.dumps(self.invalid_update_question)
+        url = f'/questions/{question_id}'
+
+        response = self.test_client.put(url, headers=headers, data=data)
+
+        self.assertEqual(response.status_code, 400)
+
     def test_update_question_not_authenticated(self):
         """
         Test updating a question when not logged in
