@@ -19,18 +19,20 @@ class UpdateUserTestCase(BaseTestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_update_user_unauthenticated(self):
+    def test_update_user_invalid_request(self):
         """
-        Test updating a user details when not logged in
+        Test updating a users details with invalid body request
         """
-        self.get_user_token(self.user)
-        headers = {'content-type': 'application/json'}
-        data = json.dumps(self.update_user)
+        user_token = self.get_user_token(self.user)
+
+        headers = {'Authorization': f'Bearer {user_token}',
+                   'content-type': 'application/json'}
+        data = json.dumps({})
         url = '/auth/user'
 
         response = self.test_client.put(url, headers=headers, data=data)
 
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 400)
 
     def test_update_user_with_existing_details(self):
         """
@@ -47,3 +49,16 @@ class UpdateUserTestCase(BaseTestCase):
         response = self.test_client.put(url, headers=headers, data=data)
 
         self.assertEqual(response.status_code, 400)
+
+    def test_update_user_unauthenticated(self):
+        """
+        Test updating a user details when not logged in
+        """
+        self.get_user_token(self.user)
+        headers = {'content-type': 'application/json'}
+        data = json.dumps(self.update_user)
+        url = '/auth/user'
+
+        response = self.test_client.put(url, headers=headers, data=data)
+
+        self.assertEqual(response.status_code, 401)

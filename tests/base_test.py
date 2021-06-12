@@ -3,6 +3,7 @@ import unittest
 
 
 from api import create_app, db
+from api.models import User
 from config import TestConfig
 
 
@@ -45,6 +46,25 @@ class BaseTestCase(unittest.TestCase):
         self.update_answer = {'body': 'An updated cool answer'}
         self.invalid_answer = {}
         self.other_answer = {'body': 'Other cool answer'}
+
+    def create_user(self, data):
+        """
+        Create a dummy user
+        """
+        user = User(email=data['email'], username=data['username'])
+        user.set_password(data['password'])
+
+        db.session.add(user)
+        db.session.commit()
+
+        return user
+
+    def set_password_reset_token(self, user, token):
+        """
+        Set the password reset token for provided user
+        """
+        user.password_reset_token = token
+        db.session.commit()
 
     def get_user_token(self, user_data):
         """

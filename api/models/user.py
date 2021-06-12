@@ -18,6 +18,7 @@ class User(db.Model):
     username = db.Column(db.String(50), unique=True)
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(256))
+    password_reset_token = db.Column(db.String(256), default='')
     questions = db.relationship('Question', backref='author', lazy='dynamic')
     answers = db.relationship('Answer', backref='author', lazy='dynamic')
     liked_answers = db.relationship(

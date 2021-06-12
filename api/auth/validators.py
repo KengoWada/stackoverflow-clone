@@ -45,3 +45,26 @@ def validate_update_user(data):
         return {'is_valid': False, 'errors': v.errors}
 
     return {'is_valid': True}
+
+
+def validate_forgot_password(data):
+    schema = {'email': {'type': 'string', 'is_email': True, 'required': True}}
+
+    v = CustomValidator(schema)
+    v.validate(data)
+
+    if v.errors:
+        return {'is_valid': False, 'errors': v.errors}
+
+    return {'is_valid': True}
+
+
+def validate_reset_password(data):
+    schema = {'password': {'type': 'string', 'minlength': 8, 'required': True}}
+    v = CustomValidator(schema)
+    v.validate(data)
+
+    if v.errors:
+        return {'is_valid': False, 'errors': v.errors}
+
+    return {'is_valid': True}
