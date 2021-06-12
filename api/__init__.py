@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_mail import Mail
 from flask_migrate import Migrate
@@ -6,7 +7,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 from config import Config
-
 
 db = SQLAlchemy()
 mail = Mail()
@@ -28,8 +28,8 @@ def user_lookup_callback(_jwt_header, jwt_data):
 
 def create_app(config_class=Config):
     app = Flask(__name__)
-
     app.config.from_object(config_class)
+    CORS(app)
 
     db.init_app(app=app)
     mail.init_app(app=app)
