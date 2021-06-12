@@ -1,6 +1,8 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -9,6 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 from config import Config
 
 db = SQLAlchemy()
+limiter = Limiter(key_func=get_remote_address)
 mail = Mail()
 migrate = Migrate()
 jwt = JWTManager()
@@ -32,6 +35,7 @@ def create_app(config_class=Config):
     CORS(app)
 
     db.init_app(app=app)
+    limiter.init_app(app=app)
     mail.init_app(app=app)
     migrate.init_app(app=app, db=db)
     jwt.init_app(app=app)
@@ -41,6 +45,23 @@ def create_app(config_class=Config):
 
     from .questions.routes import question_bp
     app.register_blueprint(question_bp)
+
+    # Add error handling routes
+    @app.errorhandler(404)
+    def handle_404(e):
+        response = {'message': 'Invalid route'}
+        return jsonify(response), 404
+
+    @app.errorhandler(429)
+    def ratelimit_handler(e):
+        response = {'message': 'Ratelimit exceeded',
+                    'error': str(e.description)}
+        return jsonify(response), 429
+
+    @app.errorhandler(500)
+    def handle_server_error(e):
+        response = {'message': 'An internal error has occured'}
+        return jsonify(response), 500
 
     return app
 

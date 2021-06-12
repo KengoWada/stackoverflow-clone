@@ -2,12 +2,14 @@ from flask import Blueprint, jsonify
 from flask.views import MethodView
 from flask_jwt_extended import current_user, jwt_required
 
+from api import limiter
 from . import auth_helpers, user_crud
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
 @auth_bp.route('/register', methods=['POST'])
+@limiter.limit('6 per minute')
 def register_user():
     return user_crud.create()
 
@@ -18,11 +20,13 @@ def login_user():
 
 
 @auth_bp.route('/forgot-password', methods=['POST'])
+@limiter.limit('3 per day')
 def forgot_password():
     return auth_helpers.forgot_password()
 
 
 @auth_bp.route('/reset-password/<token>', methods=['POST'])
+@limiter.limit('1 per minute')
 def reset_password(token):
     return auth_helpers.reset_password(token=token)
 
