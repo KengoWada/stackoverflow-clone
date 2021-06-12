@@ -14,12 +14,12 @@ class GetQuestionsTestCase(BaseTestCase):
         Add dummy questions to the database
         """
         # Add users
-        user_token = self.get_user_token(self.user)
-        user2_token = self.get_user_token(self.other_user)
+        user = self.create_user(self.user)
+        other_user = self.create_user(self.other_user)
 
         # Add questions
-        self.create_question(self.question, user_token)
-        self.create_question(self.other_question, user2_token)
+        self.create_question(self.question, user.id)
+        self.create_question(self.other_question, other_user.id)
 
     def test_get_questions(self):
         """
@@ -27,7 +27,7 @@ class GetQuestionsTestCase(BaseTestCase):
         """
         self.add_questions()
 
-        headers = {'content-type': 'application/json'}
+        headers = self.get_request_header()
 
         response = self.test_client.get(self.url, headers=headers)
         data = json.loads(response.data.decode())
@@ -39,7 +39,7 @@ class GetQuestionsTestCase(BaseTestCase):
         """
         Test get questions with empty db
         """
-        headers = {'content-type': 'application/json'}
+        headers = self.get_request_header()
 
         response = self.test_client.get(self.url, headers=headers)
         data = json.loads(response.data.decode())
@@ -54,24 +54,24 @@ class GetMyQuestionsTestCase(BaseTestCase):
         super().setUp()
         self.url = '/questions/mine'
 
-    def add_questions(self):
+    def add_my_questions(self):
         """
         Add questions for user
         """
-        user_token = self.get_user_token(self.user)
+        user = self.create_user(self.user)
 
-        self.create_question(self.question, user_token)
-        self.create_question(self.other_question, user_token)
+        self.create_question(self.question, user.id)
+        self.create_question(self.other_question, user.id)
 
-        return user_token
+        return self.get_user_token(user=user)
 
     def test_get_user_questions(self):
         """
         Test getting questions posted by a user
         """
-        token = self.add_questions()
-        headers = {'Authorization': f'Bearer {token}',
-                   'content-type': 'application/json'}
+        user_token = self.add_my_questions()
+
+        headers = self.get_request_header(user_token)
 
         response = self.test_client.get(self.url, headers=headers)
         data = json.loads(response.data.decode())
@@ -83,9 +83,10 @@ class GetMyQuestionsTestCase(BaseTestCase):
         """
         Test getting questions when user has none
         """
-        token = self.get_user_token(self.user)
-        headers = {'Authorization': f'Bearer {token}',
-                   'content-type': 'application/json'}
+        user = self.create_user(self.other_user)
+        user_token = self.get_user_token(user)
+
+        headers = self.get_request_header(user_token)
 
         response = self.test_client.get(self.url, headers=headers)
         data = json.loads(response.data.decode())
@@ -97,8 +98,9 @@ class GetMyQuestionsTestCase(BaseTestCase):
         """
         Test getting a users questions when not logged in
         """
-        self.add_questions()
-        headers = {'content-type': 'application/json'}
+        self.add_my_questions()
+
+        headers = self.get_request_header()
 
         response = self.test_client.get(self.url, headers=headers)
 
@@ -107,15 +109,19 @@ class GetMyQuestionsTestCase(BaseTestCase):
 
 class GetQuestionTestCase(BaseTestCase):
 
+    def setUp(self):
+        super().setUp()
+        self.url = '/questions/'
+
     def add_question(self):
         """
         Create dummy questions
         """
-        user_token = self.get_user_token(self.user)
+        user = self.create_user(self.user)
 
-        question_id = self.create_question(self.question, user_token)
+        question = self.create_question(self.question, user.id)
 
-        return question_id
+        return question.id
 
     def test_get_question_by_id(self):
         """
@@ -123,8 +129,8 @@ class GetQuestionTestCase(BaseTestCase):
         """
         question_id = self.add_question()
 
-        headers = {'content-type': 'application/json'}
-        url = f'/questions/{question_id}'
+        headers = self.get_request_header()
+        url = f'{self.url}{question_id}'
 
         response = self.test_client.get(url, headers=headers)
 
@@ -136,8 +142,8 @@ class GetQuestionTestCase(BaseTestCase):
         """
         self.add_question()
 
-        headers = {'content-type': 'application/json'}
-        url = '/questions/0'
+        headers = self.get_request_header()
+        url = f'{self.url}0'
 
         response = self.test_client.get(url, headers=headers)
 

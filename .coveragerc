@@ -6,5 +6,7 @@ omit =
     *.pyc
     */venv/*
     */home/travis/virtualenv/*
-    models.py
+    */models/*
     tests/*
+    */utils.py
+    

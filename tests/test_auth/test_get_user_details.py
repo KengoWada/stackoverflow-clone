@@ -7,19 +7,14 @@ class GetUserInfoTestCase(BaseTestCase):
         super().setUp()
         self.url = '/auth/user'
 
-    def add_user(self):
-        """
-        Create dummy user
-        """
-        return self.get_user_token(self.user)
-
     def test_get_user_info(self):
         """
         Test getting a users info
         """
-        user_token = self.add_user()
-        headers = {'Authorization': f'Bearer {user_token}',
-                   'content-type': 'application/json'}
+        user = self.create_user(self.user)
+        user_token = self.get_user_token(user=user)
+
+        headers = self.get_request_header(user_token)
 
         response = self.test_client.get(self.url, headers=headers)
 
@@ -29,7 +24,7 @@ class GetUserInfoTestCase(BaseTestCase):
         """
         Test getting a users info
         """
-        headers = {'content-type': 'application/json'}
+        headers = self.get_request_header()
 
         response = self.test_client.get(self.url, headers=headers)
 

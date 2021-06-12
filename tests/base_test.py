@@ -1,9 +1,10 @@
-import json
 import unittest
 
+from flask_jwt_extended import create_access_token
 
 from api import create_app, db
-from api.models import User
+from api.models import Question, User, Answer
+from api.utils import get_token
 from config import TestConfig
 
 
@@ -20,6 +21,8 @@ class BaseTestCase(unittest.TestCase):
         # Dummy users
         self.user = {'username': 'SomePerson',
                      'email': 'some@email.com', 'password': 'complex_password'}
+        self.user_login = {'username': 'SomePerson',
+                           'password': 'complex_password'}
         self.invalid_user = {
             'username': 'SomePerson', 'password': 'password'}
         self.invalid_register_user = {
@@ -34,7 +37,7 @@ class BaseTestCase(unittest.TestCase):
         # Dummy questions
         self.question = {'title': 'Sample question',
                          'body': 'Sample question body'}
-        self.invalid_question = {'title': 'Invalid question'}
+        self.invalid_question = {}
         self.update_question = {
             'title': 'New sample question', 'body': 'New sample question body'}
         self.invalid_update_question = {}
@@ -59,6 +62,12 @@ class BaseTestCase(unittest.TestCase):
 
         return user
 
+    def get_user_token(self, user):
+        """
+        Return valid token for user provided
+        """
+        return create_access_token(identity=user)
+
     def set_password_reset_token(self, user, token):
         """
         Set the password reset token for provided user
@@ -66,54 +75,41 @@ class BaseTestCase(unittest.TestCase):
         user.password_reset_token = token
         db.session.commit()
 
-    def get_user_token(self, user_data):
+    def create_question(self, data, user_id):
         """
-        Create dummy user and return JWT
+        Create a dummy question for the user_id provided
+        """
+        question = Question(title=data['title'],
+                            body=data['body'], user_id=user_id)
+        db.session.add(question)
+        db.session.commit()
+
+        return question
+
+    def create_answer(self, data, question_id, user_id):
+        """
+        Create a dummy answer for the user_id and question_id provided
+        """
+        answer = Answer(body=data['body'],
+                        question_id=question_id, user_id=user_id)
+        db.session.add(answer)
+        db.session.commit()
+
+        return answer
+
+    def get_request_header(self, user_token=None):
+        """
+        Return header for making requests
         """
         headers = {'content-type': 'application/json'}
-        data = json.dumps(user_data)
-        url = '/auth/register'
 
-        response = self.test_client.post(url, headers=headers, data=data)
-        self.assertEqual(response.status_code, 201)
+        if user_token:
+            headers['Authorization'] = f'Bearer {user_token}'
 
-        url = '/auth/login'
+        return headers
 
-        response = self.test_client.post(url, headers=headers, data=data)
-        self.assertEqual(response.status_code, 200)
-
-        data = json.loads(response.data.decode())
-        return data['access_token']
-
-    def create_question(self, question_data, token):
-        """
-        Create a question for user whose token is provided and return question id
-        """
-        headers = {'Authorization': f'Bearer {token}',
-                   'content-type': 'application/json'}
-        data = json.dumps(question_data)
-        url = '/questions/'
-
-        response = self.test_client.post(url, headers=headers, data=data)
-        data = json.loads(response.data.decode())
-
-        self.assertEqual(response.status_code, 201)
-
-        return data['question']['id']
-
-    def create_answer(self, answer_data, question_id, token):
-        """
-        Create an answer for a question and user whose token is provided
-        """
-        headers = {'Authorization': f'Bearer {token}',
-                   'content-type': 'application/json'}
-        data = json.dumps(answer_data)
-        url = f'/questions/{question_id}/answers'
-
-        response = self.test_client.post(url, headers=headers, data=data)
-        data = json.loads(response.data.decode())
-
-        return data['answer']['id']
+    def get_user_password_token(self, email):
+        return get_token(email)
 
     def tearDown(self):
         db.session.remove()

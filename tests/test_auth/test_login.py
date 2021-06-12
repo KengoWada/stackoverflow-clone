@@ -9,29 +9,39 @@ class LoginTestCase(BaseTestCase):
         super().setUp()
         self.url = '/auth/login'
 
-    def register_user(self):
-        """
-        Create a dummy user
-        """
-        response = self.test_client.post(
-            '/auth/register', content_type='application/json', data=json.dumps(self.user))
-        self.assertEqual(response.status_code, 201)
-
     def test_login(self):
         """
         Test logging in a valid user
         """
-        self.register_user()
-        response = self.test_client.post(
-            self.url, content_type='application/json', data=json.dumps(self.user))
-        # print(json.loads(response.data.decode()))
+        self.create_user(self.user)
+
+        headers = self.get_request_header()
+        data = json.dumps(self.user_login)
+
+        response = self.test_client.post(self.url, headers=headers, data=data)
+
         self.assertEqual(response.status_code, 200)
 
-    def test_invalid_credentials(self):
+    def test_login_invalid_credentials(self):
         """
         Test logging in with invalid credentials
         """
-        self.register_user()
-        response = self.test_client.post(
-            self.url, content_type='application/json', data=json.dumps(self.invalid_user))
+        self.create_user(self.user)
+
+        headers = self.get_request_header()
+        data = json.dumps(self.invalid_user)
+
+        response = self.test_client.post(self.url, headers=headers, data=data)
+
         self.assertEqual(response.status_code, 400)
+
+    # TODO: Implement login field validation
+    # def test_login_invalid_request(self):
+    #     self.create_user(self.user)
+
+    #     headers = self.get_request_header()
+    #     data = json.dumps({})
+
+    #     response = self.test_client.post(self.url, headers=headers, data=data)
+
+    #     self.assertEqual(response.status_code, 400)

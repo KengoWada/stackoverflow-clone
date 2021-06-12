@@ -11,26 +11,27 @@ class UpdateAnswerTestCase(BaseTestCase):
         Create dummy question and answer
         """
         # Create users
-        user_token = self.get_user_token(self.user)
-        other_user_token = self.get_user_token(self.other_user)
+        user = self.create_user(self.user)
+        other_user = self.create_user(self.other_user)
 
         # Create question
-        question_id = self.create_question(self.question, user_token)
+        question = self.create_question(self.question, other_user.id)
 
         # Add answers
-        answer_id = self.create_answer(
-            self.answer, question_id, other_user_token)
+        answer = self.create_answer(self.answer, question.id, user.id)
 
-        return user_token, other_user_token, question_id, answer_id
+        user_token = self.get_user_token(user)
+        other_user_token = self.get_user_token(other_user)
+
+        return user_token, other_user_token, question.id, answer.id
 
     def test_update_answer(self):
         """
         Test updating an answer
         """
-        _, other_user_token, question_id, answer_id = self.add_answer()
+        user_token, _, question_id, answer_id = self.add_answer()
 
-        headers = {'Authorization': f'Bearer {other_user_token}',
-                   'content-type': 'application/json'}
+        headers = self.get_request_header(user_token)
         data = json.dumps(self.update_answer)
         url = f'/questions/{question_id}/answers/{answer_id}'
 
@@ -42,10 +43,9 @@ class UpdateAnswerTestCase(BaseTestCase):
         """
         Test updating an answer with invalid question ID
         """
-        _, other_user_token, _, answer_id = self.add_answer()
+        user_token, _, _, answer_id = self.add_answer()
 
-        headers = {'Authorization': f'Bearer {other_user_token}',
-                   'content-type': 'application/json'}
+        headers = self.get_request_header(user_token)
         data = json.dumps(self.update_answer)
         url = f'/questions/0/answers/{answer_id}'
 
@@ -57,10 +57,9 @@ class UpdateAnswerTestCase(BaseTestCase):
         """
         Test updating an answer with invalid ID
         """
-        _, other_user_token, question_id, _ = self.add_answer()
+        user_token, _, question_id, _ = self.add_answer()
 
-        headers = {'Authorization': f'Bearer {other_user_token}',
-                   'content-type': 'application/json'}
+        headers = self.get_request_header(user_token)
         data = json.dumps(self.update_answer)
         url = f'/questions/{question_id}/answers/0'
 
@@ -72,10 +71,9 @@ class UpdateAnswerTestCase(BaseTestCase):
         """
         Test updating an answer with invalid body
         """
-        _, other_user_token, question_id, answer_id = self.add_answer()
+        user_token, _, question_id, answer_id = self.add_answer()
 
-        headers = {'Authorization': f'Bearer {other_user_token}',
-                   'content-type': 'application/json'}
+        headers = self.get_request_header(user_token)
         data = json.dumps(self.invalid_answer)
         url = f'/questions/{question_id}/answers/{answer_id}'
 
@@ -89,7 +87,7 @@ class UpdateAnswerTestCase(BaseTestCase):
         """
         _, _, question_id, answer_id = self.add_answer()
 
-        headers = {'content-type': 'application/json'}
+        headers = self.get_request_header()
         data = json.dumps(self.update_answer)
         url = f'/questions/{question_id}/answers/{answer_id}'
 
@@ -101,10 +99,9 @@ class UpdateAnswerTestCase(BaseTestCase):
         """
         Test updating another users answer
         """
-        user_token, _, question_id, answer_id = self.add_answer()
+        _, other_user_token, question_id, answer_id = self.add_answer()
 
-        headers = {'Authorization': f'Bearer {user_token}',
-                   'content-type': 'application/json'}
+        headers = self.get_request_header(other_user_token)
         data = json.dumps(self.update_answer)
         url = f'/questions/{question_id}/answers/{answer_id}'
 

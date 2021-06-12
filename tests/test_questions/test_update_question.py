@@ -5,24 +5,28 @@ from tests.base_test import BaseTestCase
 
 class UpdateQuestionTestCase(BaseTestCase):
 
+    def setUp(self):
+        super().setUp()
+        self.url = '/questions/'
+
     def add_question(self):
         """
         Create a dummy question
         """
-        user_token = self.get_user_token(self.user)
-        question_id = self.create_question(self.question, user_token)
+        user = self.create_user(self.user)
+        question = self.create_question(self.question, user.id)
 
-        return user_token, question_id
+        return self.get_user_token(user), question.id
 
     def test_update_question(self):
         """
         Test updating a question
         """
         user_token, question_id = self.add_question()
-        headers = {'Authorization': f'Bearer {user_token}',
-                   'content-type': 'application/json'}
+
+        headers = self.get_request_header(user_token)
         data = json.dumps(self.update_question)
-        url = f'/questions/{question_id}'
+        url = f'{self.url}{question_id}'
 
         response = self.test_client.put(url, headers=headers, data=data)
         data = json.loads(response.data.decode())
@@ -35,10 +39,10 @@ class UpdateQuestionTestCase(BaseTestCase):
         Test updating a question with invalid ID
         """
         user_token, _ = self.add_question()
-        headers = {'Authorization': f'Bearer {user_token}',
-                   'content-type': 'application/json'}
+
+        headers = self.get_request_header(user_token)
         data = json.dumps(self.update_question)
-        url = '/questions/0'
+        url = f'{self.url}0'
 
         response = self.test_client.put(url, headers=headers, data=data)
 
@@ -49,10 +53,10 @@ class UpdateQuestionTestCase(BaseTestCase):
         Test updating a question with invalid request body
         """
         user_token, question_id = self.add_question()
-        headers = {'Authorization': f'Bearer {user_token}',
-                   'content-type': 'application/json'}
+
+        headers = self.get_request_header(user_token)
         data = json.dumps(self.invalid_update_question)
-        url = f'/questions/{question_id}'
+        url = f'{self.url}{question_id}'
 
         response = self.test_client.put(url, headers=headers, data=data)
 
@@ -63,9 +67,10 @@ class UpdateQuestionTestCase(BaseTestCase):
         Test updating a question when not logged in
         """
         _, quesion_id = self.add_question()
-        headers = {'content-type': 'application/json'}
+
+        headers = self.get_request_header()
         data = json.dumps(self.update_question)
-        url = f'/questions/{quesion_id}'
+        url = f'{self.url}{quesion_id}'
 
         response = self.test_client.put(url, headers=headers, data=data)
 
@@ -76,11 +81,13 @@ class UpdateQuestionTestCase(BaseTestCase):
         Test updatin another users questions
         """
         _, quesion_id = self.add_question()
-        user_token = self.get_user_token(self.other_user)
-        headers = {'Authorization': f'Bearer {user_token}',
-                   'content-type': 'application/json'}
+
+        user = self.create_user(self.other_user)
+        user_token = self.get_user_token(user)
+
+        headers = self.get_request_header(user_token)
         data = json.dumps(self.update_question)
-        url = f'/questions/{quesion_id}'
+        url = f'{self.url}{quesion_id}'
 
         response = self.test_client.put(url, headers=headers, data=data)
 

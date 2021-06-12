@@ -11,17 +11,17 @@ class GetAnswersTestCase(BaseTestCase):
         Add a dummy question and answers
         """
         # Create users
-        user_token = self.get_user_token(self.user)
-        other_user_token = self.get_user_token(self.other_user)
+        user = self.create_user(self.user)
+        other_user = self.create_user(self.other_user)
 
         # Create question
-        question_id = self.create_question(self.question, user_token)
+        question = self.create_question(self.question, user.id)
 
         # Add answers
-        self.create_answer(self.answer, question_id, other_user_token)
-        self.create_answer(self.other_answer, question_id, user_token)
+        self.create_answer(self.answer, question.id, other_user.id)
+        self.create_answer(self.other_answer, question.id, user.id)
 
-        return question_id
+        return question.id
 
     def test_get_question_answers(self):
         """
@@ -29,7 +29,7 @@ class GetAnswersTestCase(BaseTestCase):
         """
         question_id = self.add_answers()
 
-        headers = {'content-type': 'application/json'}
+        headers = self.get_request_header()
         url = f'/questions/{question_id}/answers'
 
         response = self.test_client.get(url, headers=headers)
@@ -40,7 +40,7 @@ class GetAnswersTestCase(BaseTestCase):
         """
         Test getting answers for invalid question ID
         """
-        headers = {'content-type': 'application/json'}
+        headers = self.get_request_header()
         url = '/questions/0/answers'
 
         response = self.test_client.get(url, headers=headers)
@@ -55,17 +55,16 @@ class GetAnswerTestCase(BaseTestCase):
         Add a dummy question and answers
         """
         # Create users
-        user_token = self.get_user_token(self.user)
-        other_user_token = self.get_user_token(self.other_user)
+        user = self.create_user(self.user)
+        other_user = self.create_user(self.other_user)
 
         # Create question
-        question_id = self.create_question(self.question, user_token)
+        question = self.create_question(self.question, user.id)
 
         # Add answers
-        answer_id = self.create_answer(
-            self.answer, question_id, other_user_token)
+        answer = self.create_answer(self.answer, question.id, other_user.id)
 
-        return question_id, answer_id
+        return question.id, answer.id
 
     def test_get_answer(self):
         """
@@ -73,7 +72,7 @@ class GetAnswerTestCase(BaseTestCase):
         """
         question_id, answer_id = self.add_answer()
 
-        headers = {'content-type': 'application/json'}
+        headers = self.get_request_header()
         url = f'/questions/{question_id}/answers/{answer_id}'
 
         response = self.test_client.get(url, headers=headers)
@@ -86,7 +85,7 @@ class GetAnswerTestCase(BaseTestCase):
         """
         _, answer_id = self.add_answer()
 
-        headers = {'content-type': 'application/json'}
+        headers = self.get_request_header()
         url = f'/questions/0/answers/{answer_id}'
 
         response = self.test_client.get(url, headers=headers)

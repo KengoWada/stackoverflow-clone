@@ -9,19 +9,21 @@ class AddAnswerTestCase(BaseTestCase):
         """
         Add a dummy question
         """
-        user_token = self.get_user_token(self.user)
-        question_id = self.create_question(self.question, user_token)
+        user = self.create_user(self.user)
+        question = self.create_question(self.question, user.id)
 
-        return user_token, question_id
+        return self.get_user_token(user), question.id
 
     def test_add_answer(self):
         """
         Test adding an answer to a question
         """
         _, question_id = self.add_question()
-        user_token = self.get_user_token(self.other_user)
-        headers = {'Authorization': f'Bearer {user_token}',
-                   'content-type': 'application/json'}
+
+        user = self.create_user(self.other_user)
+        user_token = self.get_user_token(user)
+
+        headers = self.get_request_header(user_token)
         data = json.dumps(self.answer)
         url = f'/questions/{question_id}/answers'
 
@@ -34,8 +36,8 @@ class AddAnswerTestCase(BaseTestCase):
         Test adding an answer to an invalid question ID
         """
         user_token, _ = self.add_question()
-        headers = {'Authorization': f'Bearer {user_token}',
-                   'content-type': 'application/json'}
+
+        headers = self.get_request_header(user_token)
         data = json.dumps(self.answer)
         url = '/questions/0/answers'
 
@@ -48,8 +50,8 @@ class AddAnswerTestCase(BaseTestCase):
         Test adding an answer to an invalid request body
         """
         user_token, question_id = self.add_question()
-        headers = {'Authorization': f'Bearer {user_token}',
-                   'content-type': 'application/json'}
+
+        headers = self.get_request_header(user_token)
         data = json.dumps(self.invalid_answer)
         url = f'/questions/{question_id}/answers'
 
@@ -62,7 +64,8 @@ class AddAnswerTestCase(BaseTestCase):
         Test adding an answer when not authenticated
         """
         _, question_id = self.add_question()
-        headers = {'content-type': 'application/json'}
+
+        headers = self.get_request_header()
         data = json.dumps(self.answer)
         url = f'/questions/{question_id}/answers'
 

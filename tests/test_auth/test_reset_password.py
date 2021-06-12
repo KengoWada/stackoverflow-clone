@@ -1,22 +1,34 @@
 import json
 
 from tests.base_test import BaseTestCase
-from api.utils import get_token
 
 
 class ResetPasswordTestCase(BaseTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.url = '/auth/reset-password/'
+
+    def add_user_return_password_reset_token(self):
+        """
+        Add a dummy user and return their password reset token
+        """
+        user = self.create_user(self.user)
+        token = self.get_user_password_token(user.email)
+
+        self.set_password_reset_token(user=user, token=token)
+
+        return token
 
     def test_reset_password(self):
         """
         Test reseting a users password
         """
-        user = self.create_user(self.user)
-        token = get_token(user.email)
-        self.set_password_reset_token(user=user, token=token)
+        token = self.add_user_return_password_reset_token()
 
-        headers = {'content-type': 'application/json'}
+        headers = self.get_request_header()
         data = json.dumps({'password': self.other_user['password']})
-        url = f'/auth/reset-password/{token}'
+        url = f'{self.url}{token}'
 
         response = self.test_client.post(url, headers=headers, data=data)
 
@@ -26,13 +38,11 @@ class ResetPasswordTestCase(BaseTestCase):
         """
         Test reseting a users password invalid password
         """
-        user = self.create_user(self.user)
-        token = get_token(user.email)
-        self.set_password_reset_token(user=user, token=token)
+        token = self.add_user_return_password_reset_token()
 
-        headers = {'content-type': 'application/json'}
+        headers = self.get_request_header()
         data = json.dumps({'password': ''})
-        url = f'/auth/reset-password/{token}'
+        url = f'{self.url}{token}'
 
         response = self.test_client.post(url, headers=headers, data=data)
 
@@ -42,13 +52,11 @@ class ResetPasswordTestCase(BaseTestCase):
         """
         Test reset password invalid token
         """
-        user = self.create_user(self.user)
-        token = get_token(user.email)
-        self.set_password_reset_token(user=user, token=token)
+        self.add_user_return_password_reset_token()
 
-        headers = {'content-type': 'application/json'}
+        headers = self.get_request_header()
         data = json.dumps({'password': 'VeryLongNewPassowrd'})
-        url = f'/auth/reset-password/some-wrong-text'
+        url = f'{self.url}some-wrong-text'
 
         response = self.test_client.post(url, headers=headers, data=data)
 
@@ -58,13 +66,11 @@ class ResetPasswordTestCase(BaseTestCase):
         """
         Test reseting a password twice with the same token
         """
-        user = self.create_user(self.user)
-        token = get_token(user.email)
-        self.set_password_reset_token(user=user, token=token)
+        token = self.add_user_return_password_reset_token()
 
-        headers = {'content-type': 'application/json'}
+        headers = self.get_request_header()
         data = json.dumps({'password': self.other_user['password']})
-        url = f'/auth/reset-password/{token}'
+        url = f'{self.url}{token}'
 
         response = self.test_client.post(url, headers=headers, data=data)
 
