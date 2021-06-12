@@ -23,6 +23,10 @@ class BaseTestCase(unittest.TestCase):
             'username': 'SomePerson', 'password': 'password'}
         self.invalid_register_user = {
             'username': 'SomePerson', 'email': 'some@'}
+        self.update_user = {'email': 'some@email.com',
+                            'username': 'UpdatedUsername'}
+        self.invalid_update_user = {'email': 'some@email.com',
+                                    'username': 'OtherUser'}
         self.other_user = {'username': 'OtherUser',
                            'email': 'other@email.com', 'password': 'complex_password'}
 
